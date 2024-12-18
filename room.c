@@ -43,7 +43,7 @@ void initializeRooms(Room rooms[]) {
     strcpy(rooms[4].description, "A pitch-black cave where danger lurks.");
     rooms[4].hasItem = 0;
     rooms[4].hasMonster = 1; strcpy(rooms[4].monsterName, "Giant Spider(Final Boss)");
-    rooms[4].monsterHealth = 110; rooms[4].monsterStrength = 50;
+    rooms[4].monsterHealth = 110; rooms[4].monsterStrength = 40;
     rooms[4].north = -1; rooms[4].south = -1; rooms[4].east = 3; rooms[4].west = -1;
 }
 
