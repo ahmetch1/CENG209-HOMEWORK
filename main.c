@@ -1,43 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-// Constants
-#define MAX_INVENTORY 10
-#define MAX_NAME_LEN 50
-#define MAX_ROOMS 5
-
-typedef struct {
-    char name[MAX_NAME_LEN];
-    int health;
-    int strength;
-    int inventoryCapacity;
-    int inventorySize;
-    char inventory[MAX_INVENTORY][MAX_NAME_LEN];
-} Player;
-
-typedef struct {
-    char name[MAX_NAME_LEN];
-    char description[200];
-    int hasItem;  // Flag for item in room
-    char itemName[MAX_NAME_LEN];
-    int hasMonster;  // Flag for monster in room
-    char monsterName[MAX_NAME_LEN];
-    int monsterHealth;
-    int monsterStrength;
-    int north, south, east, west; // Connected rooms
-} Room;
-
+#include "player.c"
+#include "room.c"
 
 
 // Function Prototypes
-void initializePlayer(Player *player);
-void initializeRooms(Room rooms[]);
-void displayRoom(Room *room);
-void look(Room *room);
 void pickItem(Player *player, Room *room);
-void inventory(Player *player);
-void move(Room rooms[], int *currentRoom, char direction[10]);
 void attack(Player *player, Room *room);
 void displayCommands();
 void saveGame(Player *player, Room rooms[], int currentRoom);
@@ -55,7 +24,7 @@ int main() {
     initializePlayer(&player);
     initializeRooms(rooms);
     
-    printf("Would you like to load a saved game? (yes/no): ");
+    printf("Would you like to load a saved gsame? (yes/no): ");
     char choice[10];
     scanf("%s", choice);
     if (strcmp(choice, "yes") == 0) {
@@ -111,58 +80,6 @@ int main() {
     return 0;
 }
 
-// Initialize Player
-void initializePlayer(Player *player) {
-    strcpy(player->name, "Hero");
-    player->health = 100;
-    player->strength = 20;
-    player->inventoryCapacity = MAX_INVENTORY;
-    player->inventorySize = 0;
-}
-
-// Initialize 5 Rooms
-void initializeRooms(Room rooms[]) {
-    // Room 0
-    strcpy(rooms[0].name, "Dungeon Entrance");
-    strcpy(rooms[0].description, "A dark, gloomy entrance.");
-    rooms[0].hasItem = 1; strcpy(rooms[0].itemName, "Torch");
-    rooms[0].hasMonster = 1; strcpy(rooms[0].monsterName, "Goblin");
-    rooms[0].monsterHealth = 30; rooms[0].monsterStrength = 10;
-    rooms[0].north = 1; rooms[0].south = -1; rooms[0].east = 2; rooms[0].west = -1;
-
-    // Room 1
-    strcpy(rooms[1].name, "Hall of Bones");
-    strcpy(rooms[1].description, "A chilling hall filled with skeleton remains.");
-    rooms[1].hasItem = 1; strcpy(rooms[1].itemName, "Sword");
-    rooms[1].hasMonster = 1; strcpy(rooms[1].monsterName, "Skeleton Warrior");
-    rooms[1].monsterHealth = 40; rooms[1].monsterStrength = 15;
-    rooms[1].north = -1; rooms[1].south = 0; rooms[1].east = -1; rooms[1].west = -1;
-
-    // Room 2
-    strcpy(rooms[2].name, "Treasure Room");
-    strcpy(rooms[2].description, "A room glittering with treasure and Health Poison.");
-    rooms[2].hasItem = 1; strcpy(rooms[2].itemName, "Health Poison");
-    rooms[2].hasMonster = 1; strcpy(rooms[2].monsterName, "Mimic");
-    rooms[2].monsterHealth = 35; rooms[2].monsterStrength = 12;
-    rooms[2].north = 3; rooms[2].south = -1; rooms[2].east = -1; rooms[2].west = 0;
-
-    // Room 3
-    strcpy(rooms[3].name, "Armory");
-    strcpy(rooms[3].description, "An abandoned armory with rusted weapons.");
-    rooms[3].hasItem = 1; strcpy(rooms[3].itemName, "Shield");
-    rooms[3].hasMonster = 1; strcpy(rooms[3].monsterName, "Orc");
-    rooms[3].monsterHealth = 50; rooms[3].monsterStrength = 18;
-    rooms[3].north = -1; rooms[3].south = 2; rooms[3].east = -1; rooms[3].west = 4;
-
-    // Room 4
-    strcpy(rooms[4].name, "Dark Cave");
-    strcpy(rooms[4].description, "A pitch-black cave where danger lurks.");
-    rooms[4].hasItem = 0;
-    rooms[4].hasMonster = 1; strcpy(rooms[4].monsterName, "Giant Spider(Final Boss)");
-    rooms[4].monsterHealth = 110; rooms[4].monsterStrength = 50;
-    rooms[4].north = -1; rooms[4].south = -1; rooms[4].east = 3; rooms[4].west = -1;
-}
-
 
 // Pick up Item
 void pickItem(Player *player, Room *room) {
@@ -186,51 +103,7 @@ void pickItem(Player *player, Room *room) {
     }
 }
 
-void look(Room *room) {
-    printf("You look around: %s\n", room->description);
-    if (room->hasItem) {
-        printf("You see a %s here.\n", room->itemName);
-    }
-    if (room->hasMonster) {
-        printf("A %s is here! It looks hostile!\n", room->monsterName);
-    }
-}
 
-void inventory(Player *player) {
-    printf("Your inventory:\n");
-    if (player->inventorySize == 0) {
-        printf(" - Empty\n");
-    } else {
-        for (int i = 0; i < player->inventorySize; i++) {
-            printf(" - %s\n", player->inventory[i]);
-        }
-    }
-}
-
-// Move to Another Room
-void move(Room rooms[], int *currentRoom, char direction[10]) {
-    int nextRoom = -1;
-
-    if (strcmp(direction, "north") == 0) {
-        nextRoom = rooms[*currentRoom].north;
-    } else if (strcmp(direction, "south") == 0) {
-        nextRoom = rooms[*currentRoom].south;
-    } else if (strcmp(direction, "east") == 0) {
-        nextRoom = rooms[*currentRoom].east;
-    } else if (strcmp(direction, "west") == 0) {
-        nextRoom = rooms[*currentRoom].west;
-    } else {
-        printf("Invalid direction.\n");
-        return;
-    }
-
-    if (nextRoom != -1) {
-        *currentRoom = nextRoom;
-        printf("You moved to %s.\n", rooms[*currentRoom].name);
-    } else {
-        printf("You cannot move in that direction.\n");
-    }
-}
 
 // Attack Command
 void attack(Player *player, Room *room) {
@@ -255,18 +128,6 @@ void attack(Player *player, Room *room) {
         printf("There is no monster to attack here.\n");
     }
 }
-
-// Display Map
-void displayMap(){
-	
-	printf("\n|Hall of Bones|         |Dark Cave|-------|Armory|                     N   \n");
-	printf("       |                                   |                           |   \n");
-	printf("       |                                   |                      W---------E \n");
-	printf("       |                                   |                           |    \n");
-	printf("       |                                   |                           S   \n");
-	printf("|Dungeon Entrance|------------------|Treasure Room|                \n");
-}
-
 // Save Game to File
 void saveGame(Player *player, Room rooms[], int currentRoom) {
     FILE *file = fopen("savegame.dat", "wb");
@@ -310,4 +171,3 @@ void displayCommands() {
     printf(" - exit          : Quit the game\n");
     printf(" - save          : Save the current game\n");
 }
-
